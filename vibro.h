@@ -1,0 +1,1 @@
+#define VIBRO 22
