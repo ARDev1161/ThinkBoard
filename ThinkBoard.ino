@@ -24,9 +24,22 @@ void setup()
   // Show the display buffer on the screen. You MUST call display() after
   // drawing commands to make them visible on screen!
   display.display();
-
+while(true){
+  display.clearDisplay();
   drawMenu();
+  
+  keyboardInit();
+  readKeys();
 
+  String keys;
+  for (int i=31; i>=0; i--)
+  if (bitRead(keyboard.keysState,i)==1) keys += "1"; else keys += "0";
+  
+  drawText(40, 0, "--Keys--");
+  drawText(0, 17, keys);
+   
+  display.display();
+}
   delay(7000);
 
   testanimate(icon_bmp, ICON_WIDTH, ICON_HEIGHT); // Animate bitmaps
@@ -35,4 +48,22 @@ void setup()
 void loop()
 {
   
+    for(;;); // Don't proceed, loop forever
+    {
+  display.clearDisplay();
+  
+  keyboardInit();
+  readKeys();
+  
+  drawMenu();
+  
+   drawText(0, 20, "Keys diagnostic:");
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0, 40);
+  display.println(keyboard.keysState, BIN);
+
+  delay(100);
+  display.display();
+    }
 }

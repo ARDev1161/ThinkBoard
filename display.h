@@ -36,26 +36,22 @@ static const unsigned char PROGMEM icon_bmp[] =
   0b00000000, 0b00000000 };
 
 
-void drawText(int xPos, int yPos, String text, int textSize = 1, bool clearDisplay = false){
-  if(clearDisplay)
-    display.clearDisplay();
-
+void drawText(int xPos, int yPos, String text, int textSize = 1){
   display.setTextSize(textSize);
   display.setTextColor(SSD1306_WHITE);        // Draw white text
   display.setCursor(xPos, yPos);
   display.println(text);
-
-  display.display();
 }
 
 void drawMenu() {
   drawText(6, 1, "NUM");
   drawText(104, 1, "CAPS");
-  display.drawLine(0, 10, display.width()-1, 10, SSD1306_WHITE);
   display.drawLine(28, 0, 28, 10, SSD1306_WHITE);
   display.drawLine(100, 0, 100, 10, SSD1306_WHITE);
+  display.drawLine(0, 10, display.width(), 10, SSD1306_WHITE);
+  //display.drawRect(0, 10, display.width()-1, display.height()-10, SSD1306_WHITE);
 
-  display.display();
+  // display.display();
 }
 
 
