@@ -42,33 +42,33 @@
 */
 
 // center, left, up, right, down
-std::vector<std::vector<int>> thumb = {{0x00, 0x2c, 0x00, 0xe1, 0xe2},  // RMB Space BankSW Shift Alt
-                              {0x00, 0x39, 0x28, 0xe0, 0x2a}};          // LMB Caps Enter Ctrl BackSpace
+std::vector<int> thumb = {0x00, 0x2c, 0x00, 0xe1, 0xe2,           // RMB Space BankSW Shift Alt
+                          0x00, 0x39, 0x28, 0xe0, 0x2a};          // LMB Caps Enter Ctrl BackSpace
 
-std::vector<std::vector<int>> bank0 = {{0x1c, 0x10, 0x11, 0x07, 0x17},  // y m n d t
-                              {0x0a, 0x15, 0x0c, 0x18, 0x08},           // g r i u e
-                              {0x13, 0x0f, 0x16, 0x1a, 0x04},           // p l s w a
-                              {0x05, 0x06, 0x0b, 0x09, 0x12}};          // b c h f o
+std::vector<int> bank0 = {0x1c, 0x10, 0x11, 0x07, 0x17,           // y m n d t
+                          0x0a, 0x15, 0x0c, 0x18, 0x08,           // g r i u e
+                          0x13, 0x0f, 0x16, 0x1a, 0x04,           // p l s w a
+                          0x05, 0x06, 0x0b, 0x09, 0x12};          // b c h f o
                               
-std::vector<std::vector<int>> bank1 = {{0x00, 0x1e, 0x1f, 0x20, 0x0e},  // Bank 1 2 3 k
-                              {0x1d, 0x21, 0x22, 0x23, 0x19},           // z 4 5 6 v
-                              {0x14, 0x24, 0x25, 0x26, 0x0d},           // q 7 8 9 j
-                              {0x35, 0x27, 0x2d, 0x2e, 0x1b}};          // ` 0 - = x
+std::vector<int> bank1 = {0x00, 0x1e, 0x1f, 0x20, 0x0e,           // Bank 1 2 3 k
+                          0x1d, 0x21, 0x22, 0x23, 0x19,           // z 4 5 6 v
+                          0x14, 0x24, 0x25, 0x26, 0x0d,           // q 7 8 9 j
+                          0x35, 0x27, 0x2d, 0x2e, 0x1b};          // ` 0 - = x
                               
-std::vector<std::vector<int>> bank2 = {{0x2b, 0x4a, 0x4b, 0x4d, 0x4e},  // Tab Home PageUp End PageDown
-                              {0x00, 0x50, 0x52, 0x4f, 0x51},           // Bank Left Up Right Down
-                              {0x36, 0x2f, 0x34, 0x30, 0x33},           // , [ ' ] ;
-                              {0x37, 0x00, 0x38, 0x31, 0x65}};          // . Empty / \ ContextMenu 
+std::vector<int> bank2 = {0x2b, 0x4a, 0x4b, 0x4d, 0x4e,           // Tab Home PageUp End PageDown
+                          0x00, 0x50, 0x52, 0x4f, 0x51,           // Bank Left Up Right Down
+                          0x36, 0x2f, 0x34, 0x30, 0x33,           // , [ ' ] ;
+                          0x37, 0x00, 0x38, 0x31, 0x65};          // . Empty / \ ContextMenu
                               
-std::vector<std::vector<int>> bank3 = {{0x46, 0x3a, 0x3b, 0x3c, 0x47},  // PrintScr F1 F2 F3 ScrLock
-                              {0x48, 0x3d, 0x3e, 0x3f, 0x81},           // Pause F4 F5 F6 Vol-
-                              {0x00, 0x40, 0x41, 0x42, 0x80},           // Bank F7 F8 F9 Vol+
-                              {0x00, 0x43, 0x44, 0x45, 0x7F}};          // Empty F10 F11 F12 Mute
+std::vector<int> bank3 = {0x46, 0x3a, 0x3b, 0x3c, 0x47,           // PrintScr F1 F2 F3 ScrLock
+                          0x48, 0x3d, 0x3e, 0x3f, 0x81,           // Pause F4 F5 F6 Vol-
+                          0x00, 0x40, 0x41, 0x42, 0x80,           // Bank F7 F8 F9 Vol+
+                          0x00, 0x43, 0x44, 0x45, 0x7F};          // Empty F10 F11 F12 Mute
                               
-std::vector<std::vector<int>> bank4 = {{0x00, 0x00, 0x00, 0x00, 0x00},  // Empty
-                              {0x00, 0x00, 0x00, 0x00, 0x00},           // Empty
-                              {0x00, 0x00, 0x00, 0x00, 0x00},           // Empty
-                              {0x00, 0x00, 0x00, 0x00, 0x00}};          // Bank
+std::vector<int> bank4 = {0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
+                          0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
+                          0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
+                          0x00, 0x00, 0x00, 0x00, 0x00};          // Bank
 
 
 const int pulseWidth = 10;      // pulse width in microseconds
@@ -189,9 +189,22 @@ void readKeys()
 
   for( int i = 0; i<32; i++)
     if( bitRead( keysState, i) != bitRead( keyboard.keysState, i))
-      if( i < 10)
+      if( i < 20)
         Serial.println( bitRead( keysState, i) == 0 ? "down ↓" : "up ↑");
+      else ;
 
   keyboard.keysState = keysState;
   delay(25); // slow down the sketch to avoid switch bounce
+}
+
+int getBank(int modBit, std::vector<int> bankBits)
+{
+  if( bitRead(keysState, modBit) == true )
+  {
+    for(int bank = 0; bank < bankBits.size(); bank++)
+      if( bitRead(keysState, bank) == true )
+        return (bank + 1);
+  }
+
+  return 0;
 }
