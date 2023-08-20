@@ -24,22 +24,42 @@ void setup()
   // Show the display buffer on the screen. You MUST call display() after
   // drawing commands to make them visible on screen!
   display.display();
-while(true){
-  display.clearDisplay();
-  drawMenu();
-  
-  keyboardInit();
-  readKeys();
 
-  String keys;
-  for (int i=31; i>=0; i--)
-  if (bitRead(keyboard.keysState,i)==1) keys += "1"; else keys += "0";
+  int bank = 0;
+  while(true){
+    display.clearDisplay();
+    drawMenu();
   
-  drawText(40, 0, "--Keys--");
-  drawText(0, 17, keys);
-   
-  display.display();
-}
+    keyboardInit();
+    readKeys();
+    bank = getBank(BANK_SEL_BIT, banksBit, bank);
+
+    String keys;
+    String symbols;
+    
+    for (int i=31; i>=0; i--)
+      if (bitRead(keyboard.keysState,i)==1) 
+      {
+        keys += "1";
+        if(i < 21)
+        {
+          symbols += thumb[i];
+        }
+        else
+        {
+          symbols += banks[bank][i];
+        }
+      }
+      else 
+        keys += "0";
+  
+    drawText(40, 0, "--Keys--");
+    drawText(0, 17, keys);
+    drawText(0, 42, symbols);
+
+    display.display();
+  }
+  
   delay(7000);
 
   testanimate(icon_bmp, ICON_WIDTH, ICON_HEIGHT); // Animate bitmaps
