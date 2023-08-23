@@ -1,5 +1,7 @@
 #include <vector>
 
+#include <Keyboard.h>
+
 #define HC165_DS 6 // Data
 #define HC165_CE 7 // Not clock enable
 #define HC165_PL 8 // Parallel load
@@ -45,30 +47,32 @@
 std::vector<int> banksBit = {19, 13, 9, 4};
 
 // center, left, up, right, down
-std::vector<int> thumb = {0x2a, 0x00, 0x00, 0x00,                 // BackSpace LMB badbit badbit
-                          0x39, 0x28, 0xe0,                       // Caps Enter Ctrl 
-                          0x00, 0xe2, 0x2c, 0x00, 0xe1};          // RMB Alt Space BankSW Shift
+std::vector<int> thumb = {KEY_RETURN, 0x00, 0x00, 0x00,                 // BackSpace LMB badbit badbit
+                          KEY_BACKSPACE, KEY_CAPS_LOCK, KEY_LEFT_CTRL,                       // Caps Enter Ctrl 
+
+                          0x00, KEY_LEFT_SHIFT, ' ', 0x00, KEY_LEFT_ALT};          // RMB Alt Space BankSW Shift
+                       
 
 std::vector< std::vector<int> > 
-                banks = {{0x1c, 0x10, 0x11, 0x07, 0x17,           // y m n d t
-                          0x0a, 0x15, 0x0c, 0x18, 0x08,           // g r i u e
-                          0x13, 0x0f, 0x16, 0x1a, 0x04,           // p l s w a
-                          0x05, 0x06, 0x0b, 0x09, 0x12},          // b c h f o
+                banks = {{'y', 'm', 'n', 'd', 't',           // y m n d t
+                          'g', 'r', 'i', 'u', 'e',           // g r i u e
+                          'p', 'l', 's', 'w', 'a',           // p l s w a
+                          'b', 'c', 'h', 'f', 'o'},          // b c h f o
                               
-                         {0x00, 0x1e, 0x1f, 0x20, 0x0e,           // Bank 1 2 3 k
-                          0x1d, 0x21, 0x22, 0x23, 0x19,           // z 4 5 6 v
-                          0x14, 0x24, 0x25, 0x26, 0x0d,           // q 7 8 9 j
-                          0x35, 0x27, 0x2d, 0x2e, 0x1b},          // ` 0 - = x
+                         {0x00, '1', '2', '3', 'k',           // Bank 1 2 3 k
+                          'z', '4', '5', '6', 'v',           // z 4 5 6 v
+                          'q', '7', '8', '9', 'j',           // q 7 8 9 j
+                          '`', '0', '-', '=', 'x'},          // ` 0 - = x
                               
-                         {0x2b, 0x4a, 0x4b, 0x4d, 0x4e,           // Tab Home PageUp End PageDown
-                          0x00, 0x50, 0x52, 0x4f, 0x51,           // Bank Left Up Right Down
-                          0x36, 0x2f, 0x34, 0x30, 0x33,           // , [ ' ] ;
-                          0x37, 0x00, 0x38, 0x31, 0x65},          // . Empty / \ ContextMenu
+                         {KEY_TAB, KEY_HOME, KEY_PAGE_UP, KEY_END, KEY_PAGE_DOWN,           // Tab Home PageUp End PageDown
+                          0x00, KEY_LEFT_ARROW, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW,           // Bank Left Up Right Down
+                          ',', '[', '\'', ']', ';',           // , [ ' ] ;
+                          '.', 0x00, '/', '\\', KEY_MENU},          // . Empty / \ ContextMenu
                               
-                         {0x46, 0x3a, 0x3b, 0x3c, 0x47,           // PrintScr F1 F2 F3 ScrLock
-                          0x48, 0x3d, 0x3e, 0x3f, 0x81,           // Pause F4 F5 F6 Vol-
-                          0x00, 0x40, 0x41, 0x42, 0x80,           // Bank F7 F8 F9 Vol+
-                          0x00, 0x43, 0x44, 0x45, 0x7f},          // Empty F10 F11 F12 Mute
+                         {KEY_PRINT_SCREEN, KEY_F1, KEY_F2, KEY_F3, KEY_SCROLL_LOCK,           // PrintScr F1 F2 F3 ScrLock
+                          KEY_PAUSE, KEY_F4, KEY_F5, KEY_F6, 0x81,           // Pause F4 F5 F6 Vol-
+                          0x00, KEY_F7, KEY_F8, KEY_F9, 0x80,           // Bank F7 F8 F9 Vol+
+                          0x00, KEY_F10, KEY_F11, KEY_F12, 0x7f},          // Empty F10 F11 F12 Mute
                               
                          {0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
                           0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
@@ -76,81 +80,15 @@ std::vector< std::vector<int> >
                           0x00, 0x00, 0x00, 0x00, 0x00}           // Bank
                           };
 
-
 const int pulseWidth = 10;      // pulse width in microseconds
 
-struct Button{
-  int code;
-  char symbol;
-  String name;
-};
-  
-struct Joystick{
-  Button center {0, '\0', "center"};
-  Button up {0, '\0', "up"};
-  Button down {0, '\0', "down"};
-  Button left {0, '\0', "left"};
-  Button right {0, '\0', "right"};
-  
-  String name = "";
-};
-
 struct Keyboard{
-    Joystick ThumbUp;
-    Joystick ThumbDown;
-    Joystick Index;
-    Joystick Middle;
-    Joystick Ring;
-    Joystick Little;
     
     uint32_t keysState = 0;
 }keyboard;
 
 void keyboardInit()
 {
-  keyboard.ThumbUp.name = "ThumbUp";
-  keyboard.ThumbDown.name = "ThumbDown";
-  keyboard.Index.name = "Index";
-  keyboard.Middle.name = "Middle";
-  keyboard.Ring.name = "Ring";
-  keyboard.Little.name = "Little";
-
-  keyboard.ThumbUp.center.code = 30;
-  keyboard.ThumbUp.left.code = 27;
-  keyboard.ThumbUp.up.code = 26;
-  keyboard.ThumbUp.right.code = 25;
-  keyboard.ThumbUp.down.code = 31;
-
-  keyboard.ThumbDown.center.code = 24;
-  keyboard.ThumbDown.left.code = 22;
-  keyboard.ThumbDown.up.code = 21;
-  keyboard.ThumbDown.right.code = 20;
-  keyboard.ThumbDown.down.code = 23;
-
-  keyboard.Index.center.code = 19;
-  keyboard.Index.left.code = 18;
-  keyboard.Index.up.code = 17;
-  keyboard.Index.right.code = 16;
-  keyboard.Index.down.code = 15;
-  
-  keyboard.Middle.center.code = 13;
-  keyboard.Middle.left.code = 14;
-  keyboard.Middle.up.code = 12;
-  keyboard.Middle.right.code = 11;
-  keyboard.Middle.down.code = 10;
-  
-  keyboard.Ring.center.code = 9;
-  keyboard.Ring.left.code = 8;
-  keyboard.Ring.up.code = 7;
-  keyboard.Ring.right.code = 6;
-  keyboard.Ring.down.code = 5;
-  
-  keyboard.Little.center.code = 4;
-  keyboard.Little.left.code = 3;
-  keyboard.Little.up.code = 2;
-  keyboard.Little.right.code = 1;
-  keyboard.Little.down.code = 0;
-  
   pinMode( HC165_CP, OUTPUT); // clock signal, idle LOW
   pinMode( HC165_PL, OUTPUT); // latch (copy input into registers), idle HIGH
   pinMode( HC165_CE, OUTPUT); // Not clock enable, idle HIGH

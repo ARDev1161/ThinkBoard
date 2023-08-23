@@ -4,9 +4,13 @@
 #include "vibro.h"
 #include "led.h"
 
+
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  Keyboard.begin();
+  Keyboard.releaseAll();
+
 
   Wire.setSDA(I2C_SDA);
   Wire.setSCL(I2C_SCL);
@@ -26,33 +30,43 @@ void setup()
   display.display();
 
   int bank = 0;
+
+  
   while(true){
     display.clearDisplay();
     drawMenu();
-  
+
     keyboardInit();
     readKeys();
     bank = getBank(BANK_SEL_BIT, banksBit, bank);
 
     String keys;
     String symbols;
+    uint8_t c;
     
     for (int i=31; i>=0; i--)
-      if (bitRead(keyboard.keysState,i)==1) 
+    {
+      if(i > 19)
+        c = thumb[31 - i]; // 31 - 20 bits use for thumb
+      else
+        c = banks[bank][19 - i]; // 0 - 19 bits use for banks
+      
+      if ( bitRead(keyboard.keysState,i) == true ) 
       {
         keys += "1";
-        if(i < 21)
-        {
-          symbols += thumb[i];
-        }
-        else
-        {
-          symbols += banks[bank][i];
+        if(c != 0x00 ){
+          Keyboard.press(c);
+          symbols += c;
         }
       }
       else 
+      {
         keys += "0";
-  
+        if(c != 0x00 )
+          Keyboard.release(c);        
+      }
+    }
+    
     drawText(40, 0, "--Keys--");
     drawText(0, 17, keys);
     drawText(0, 42, symbols);
