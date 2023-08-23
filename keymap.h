@@ -45,8 +45,9 @@
 std::vector<int> banksBit = {19, 13, 9, 4};
 
 // center, left, up, right, down
-std::vector<int> thumb = {0x00, 0x2c, 0x00, 0xe1, 0xe2,           // RMB Space BankSW Shift Alt
-                          0x00, 0x39, 0x28, 0xe0, 0x2a};          // LMB Caps Enter Ctrl BackSpace
+std::vector<int> thumb = {0x2a, 0x00, 0x00, 0x00,                 // BackSpace LMB badbit badbit
+                          0x39, 0x28, 0xe0,                       // Caps Enter Ctrl 
+                          0x00, 0xe2, 0x2c, 0x00, 0xe1};          // RMB Alt Space BankSW Shift
 
 std::vector< std::vector<int> > 
                 banks = {{0x1c, 0x10, 0x11, 0x07, 0x17,           // y m n d t
