@@ -11,7 +11,6 @@ void setup()
   Keyboard.begin();
   Keyboard.releaseAll();
 
-
   Wire.setSDA(I2C_SDA);
   Wire.setSCL(I2C_SCL);
   Wire.begin();
@@ -76,4 +75,47 @@ void loop()
     drawText(0, 42, symbols);
 
     display.display();
+}
+
+// Running on core1
+void setup1() {
+  pinMode(VIBRO, OUTPUT);
+  pinMode(TRACKPOINT_ENABLE, OUTPUT);
+  digitalWrite(VIBRO, HIGH);
+  digitalWrite(TRACKPOINT_ENABLE, HIGH);
+  
+  Serial1.setRX(TRACKPOINT_RX);
+  Serial1.setTX(TRACKPOINT_TX);
+  Serial1.begin(TRACKPOINT_BAUDRATE);
+  
+  delay(42);
+  digitalWrite(VIBRO, LOW);
+  Serial.println("ThinkBoard");
+  Mouse.begin();
+}
+
+void mouseButtonProccess(uint8_t buttonBit, uint8_t mouseButton)
+{
+  if(bitRead(keyboard.keysState,buttonBit) == true){
+    if(!Mouse.isPressed())
+      Mouse.press(mouseButton);      
+  }
+  else
+    if(Mouse.isPressed())
+      Mouse.release(mouseButton);  
+}
+
+void loop1() {
+  String mouse;
+  int x,y;
+  if(Serial1.available())
+  {
+     mouse = Serial1.readStringUntil('\n');
+     if (sscanf(mouse.c_str(), "%d:%d", &x, &y) == 2)
+      Mouse.move(-y, -x);          
+  }
+
+  mouseButtonProccess(LMB_BIT, MOUSE_LEFT);
+  mouseButtonProccess(WMB_BIT, MOUSE_MIDDLE);
+  mouseButtonProccess(RMB_BIT, MOUSE_RIGHT);
 }

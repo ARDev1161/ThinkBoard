@@ -130,12 +130,6 @@ void readKeys()
   for( int i=24; i>=0; i-=8)
     keysState |= ((uint32_t) readByte()) << i;
 
-  for( int i = 0; i<32; i++)
-    if( bitRead( keysState, i) != bitRead( keyboard.keysState, i))
-      if( i < 20)
-        Serial.println( bitRead( keysState, i) == 0 ? "down ↓" : "up ↑");
-      else ;
-
   keyboard.keysState = keysState;
   delay(25); // slow down the sketch to avoid switch bounce
 }
