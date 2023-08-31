@@ -7,7 +7,6 @@
 #define HC165_PL 8 // Parallel load
 #define HC165_CP 9 // Clock in
 
-#define BANK_SEL_BIT 20
 /*
         ,-----------------------------------------------.
         |F13|F14|F15|F16|F17|F18|F19|F20|F21|F22|F23|F24|
@@ -44,35 +43,35 @@
 `-----------------------------------------------------------' `-----------' `---------------'
 */
 
-std::vector<int> banksBit = {19, 13, 9, 4};
+std::vector<int> modeButtons = {30, 24};
 
 // center, left, up, right, down
-std::vector<int> thumb = {KEY_RETURN, 0x00, 0x00, 0x00,                 // BackSpace LMB badbit badbit
-                          KEY_BACKSPACE, KEY_CAPS_LOCK, KEY_LEFT_CTRL,                       // Caps Enter Ctrl 
+std::vector<int> thumb = {KEY_RETURN, 0x00, 0x00, 0x00,                   // Enter M1 badbit badbit
+                          KEY_BACKSPACE, KEY_CAPS_LOCK, KEY_LEFT_CTRL,    // BackSpace Caps Enter Ctrl 
 
-                          0x00, KEY_LEFT_SHIFT, ' ', 0x00, KEY_LEFT_ALT};          // RMB Alt Space BankSW Shift
+                          0x00, KEY_LEFT_ALT, ' ', KEY_LEFT_SHIFT, KEY_TAB}; // M2 Alt Space Shift Tab 
                        
 
 std::vector< std::vector<int> > 
-                banks = {{'y', 'm', 'n', 'd', 't',           // y m n d t
-                          'g', 'r', 'i', 'u', 'e',           // g r i u e
-                          'p', 'l', 's', 'w', 'a',           // p l s w a
-                          'b', 'c', 'h', 'f', 'o'},          // b c h f o
+                banks = {{0x00, 'm', 'n', 'd', 't',           // LMB m n d t
+                          'r', 0x00, 'i', 'u', 'e',           // r WMB i u e
+                          0x00, 'l', 's', 'w', 'a',           // RMB l s w a
+                          KEY_LEFT_GUI, 'c', 'h', 'f', 'o'},  // Win c h f o
                               
-                         {0x00, '1', '2', '3', 'k',           // Bank 1 2 3 k
-                          'z', '4', '5', '6', 'v',           // z 4 5 6 v
-                          'q', '7', '8', '9', 'j',           // q 7 8 9 j
-                          '`', '0', '-', '=', 'x'},          // ` 0 - = x
+                         {'y', '1', '2', '3', 'j',           // y 1 2 3 j
+                          'p', '4', '5', '6', 'v',           // p 4 5 6 v
+                          'g', '7', '8', '9', 'k',           // g 7 8 9 k
+                          'b', '0', 'z', 'q', 'x'},          // b 0 z q x
                               
-                         {KEY_TAB, KEY_HOME, KEY_PAGE_UP, KEY_END, KEY_PAGE_DOWN,           // Tab Home PageUp End PageDown
-                          0x00, KEY_LEFT_ARROW, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW,           // Bank Left Up Right Down
-                          ',', '[', '\'', ']', ';',           // , [ ' ] ;
-                          '.', 0x00, '/', '\\', KEY_MENU},          // . Empty / \ ContextMenu
+                         {0x00, KEY_HOME, KEY_PAGE_UP, KEY_END, KEY_PAGE_DOWN,           // Empty Home PageUp End PageDown
+                          KEY_LEFT_ARROW, '-', KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW,           // Left - Up Right Down
+                          '=', '[', '\'', ']', ';',          // = [ ' ] ;
+                          '.', 0x00, '/', '\\', ','},        // . Empty / \ ,
                               
                          {KEY_PRINT_SCREEN, KEY_F1, KEY_F2, KEY_F3, KEY_SCROLL_LOCK,           // PrintScr F1 F2 F3 ScrLock
-                          KEY_PAUSE, KEY_F4, KEY_F5, KEY_F6, 0x81,           // Pause F4 F5 F6 Vol-
-                          0x00, KEY_F7, KEY_F8, KEY_F9, 0x80,           // Bank F7 F8 F9 Vol+
-                          0x00, KEY_F10, KEY_F11, KEY_F12, 0x7f},          // Empty F10 F11 F12 Mute
+                          KEY_ESC, KEY_F4, KEY_F5, KEY_F6, 0x81,           // Esc F4 F5 F6 Vol-
+                          KEY_MENU, KEY_F7, KEY_F8, KEY_F9, 0x80,           // Menu F7 F8 F9 Vol+
+                          KEY_PAUSE, KEY_F10, KEY_F11, KEY_F12, 0x7f},      // Pause F10 F11 F12 Mute
                               
                          {0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
                           0x00, 0x00, 0x00, 0x00, 0x00,           // Empty
@@ -141,23 +140,13 @@ void readKeys()
   delay(25); // slow down the sketch to avoid switch bounce
 }
 
-int getBank(int bankSelectBit, std::vector<int> bankBits, int prevBankState = 0)
+int getBank()
 {  
   int bank = 0;
 
   // Calc bank state for current pressed combination
-  if( bitRead(keyboard.keysState, bankSelectBit) == true )
-    for(int i = 0; i < bankBits.size(); i++)
-      if( bitRead(keyboard.keysState, i) == true )
-      {
-        bank = i + 1;
-        break;
-      }
-      
-  // Check if prev state has already  selected bank ( bankSelecttor button or bank button still pressed )
-  if( prevBankState != 0)
-    if(( bitRead(keyboard.keysState, bankSelectBit) == true ) || (bank != 0))
-      return prevBankState;
+  for(int i = 0; i < modeButtons.size(); i++)
+    bank |= bitRead(keyboard.keysState, modeButtons[i]) << i;
   
   return bank;
 }

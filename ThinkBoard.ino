@@ -29,16 +29,19 @@ void setup()
   // drawing commands to make them visible on screen!
   display.display();
 
-  int bank = 0;
 
-  
-  while(true){
+//  testanimate(icon_bmp, ICON_WIDTH, ICON_HEIGHT); // Animate bitmaps
+}
+
+void loop()
+{
+    int bank = 0;
     display.clearDisplay();
     drawMenu();
 
     keyboardInit();
     readKeys();
-    bank = getBank(BANK_SEL_BIT, banksBit, bank);
+    bank = getBank();
 
     String keys;
     String symbols;
@@ -67,37 +70,10 @@ void setup()
       }
     }
     
-    drawText(40, 0, "--Keys--");
+//    drawText(40, 0, "--Keys--");
+    drawText(40, 0, ("Bank - " + String(bank)));
     drawText(0, 17, keys);
     drawText(0, 42, symbols);
 
     display.display();
-  }
-  
-  delay(7000);
-
-  testanimate(icon_bmp, ICON_WIDTH, ICON_HEIGHT); // Animate bitmaps
-}
-
-void loop()
-{
-  
-    for(;;); // Don't proceed, loop forever
-    {
-  display.clearDisplay();
-  
-  keyboardInit();
-  readKeys();
-  
-  drawMenu();
-  
-   drawText(0, 20, "Keys diagnostic:");
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);        // Draw white text
-  display.setCursor(0, 40);
-  display.println(keyboard.keysState, BIN);
-
-  delay(100);
-  display.display();
-    }
 }
