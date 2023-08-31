@@ -47,10 +47,8 @@ std::vector<int> modeButtons = {30, 24};
 
 // center, left, up, right, down
 std::vector<int> thumb = {KEY_RETURN, 0x00, 0x00, 0x00,                   // Enter M1 badbit badbit
-                          KEY_BACKSPACE, KEY_CAPS_LOCK, KEY_LEFT_CTRL,    // BackSpace Caps Enter Ctrl 
-
-                          0x00, KEY_LEFT_ALT, ' ', KEY_LEFT_SHIFT, KEY_TAB}; // M2 Alt Space Shift Tab 
-                       
+                          KEY_BACKSPACE, KEY_CAPS_LOCK, KEY_LEFT_CTRL,    // BackSpace Caps Enter Ctrl
+                          0x00, ' ', KEY_LEFT_ALT, KEY_TAB, KEY_LEFT_SHIFT}; // M2 Space Alt Tab Shift
 
 std::vector< std::vector<int> > 
                 banks = {{0x00, 'm', 'n', 'd', 't',           // LMB m n d t
@@ -59,7 +57,7 @@ std::vector< std::vector<int> >
                           KEY_LEFT_GUI, 'c', 'h', 'f', 'o'},  // Win c h f o
                               
                          {'y', '1', '2', '3', 'j',           // y 1 2 3 j
-                          'p', '4', '5', '6', 'v',           // p 4 5 6 v
+                          '4', 'p', '5', '6', 'v',           // 4 p 5 6 v
                           'g', '7', '8', '9', 'k',           // g 7 8 9 k
                           'b', '0', 'z', 'q', 'x'},          // b 0 z q x
                               
@@ -69,7 +67,7 @@ std::vector< std::vector<int> >
                           '.', 0x00, '/', '\\', ','},        // . Empty / \ ,
                               
                          {KEY_PRINT_SCREEN, KEY_F1, KEY_F2, KEY_F3, KEY_SCROLL_LOCK,           // PrintScr F1 F2 F3 ScrLock
-                          KEY_ESC, KEY_F4, KEY_F5, KEY_F6, 0x81,           // Esc F4 F5 F6 Vol-
+                          KEY_F4, KEY_ESC, KEY_F5, KEY_F6, 0x81,           // Esc F4 F5 F6 Vol-
                           KEY_MENU, KEY_F7, KEY_F8, KEY_F9, 0x80,           // Menu F7 F8 F9 Vol+
                           KEY_PAUSE, KEY_F10, KEY_F11, KEY_F12, 0x7f},      // Pause F10 F11 F12 Mute
                               

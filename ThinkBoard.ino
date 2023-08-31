@@ -97,11 +97,11 @@ void setup1() {
 void mouseButtonProccess(uint8_t buttonBit, uint8_t mouseButton)
 {
   if(bitRead(keyboard.keysState,buttonBit) == true){
-    if(!Mouse.isPressed())
+    if(!Mouse.isPressed(mouseButton))
       Mouse.press(mouseButton);      
   }
   else
-    if(Mouse.isPressed())
+    if(Mouse.isPressed(mouseButton))
       Mouse.release(mouseButton);  
 }
 
@@ -112,7 +112,12 @@ void loop1() {
   {
      mouse = Serial1.readStringUntil('\n');
      if (sscanf(mouse.c_str(), "%d:%d", &x, &y) == 2)
-      Mouse.move(-y, -x);          
+     {
+      if(Mouse.isPressed(MOUSE_MIDDLE))
+        Mouse.move(0, 0, x/8);
+      else
+        Mouse.move( -y, -x);
+     }
   }
 
   mouseButtonProccess(LMB_BIT, MOUSE_LEFT);
