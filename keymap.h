@@ -25,7 +25,7 @@ std::vector< std::vector<int> >
                           'g', '7', '8', '9', 'k',           // g 7 8 9 k
                           'b', '0', 'z', 'q', 'w'},          // b 0 z q w
                               
-                         {0x00, KEY_HOME, KEY_PAGE_UP, KEY_END, KEY_PAGE_DOWN,           // Empty Home PageUp End PageDown
+                         {'`', KEY_HOME, KEY_PAGE_UP, KEY_END, KEY_PAGE_DOWN,           // Empty Home PageUp End PageDown
                           KEY_LEFT_ARROW, '-', KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW,           // Left - Up Right Down
                           '=', '[', '\'', ']', ';',          // = [ ' ] ;
                           '.', 0x00, '/', '\\', ','},        // . Empty / \ ,

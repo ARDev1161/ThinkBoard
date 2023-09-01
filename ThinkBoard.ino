@@ -13,6 +13,7 @@ bool isDisplaySequence()
   return true;
 }
 
+
 void setup()
 {
   Serial.begin(115200);
@@ -120,6 +121,9 @@ void setup1() {
 
 void mouseButtonProccess(uint8_t buttonBit, uint8_t mouseButton)
 {
+  if(bank != 0)
+    return;
+  
   if(bitRead(keyboard.keysState,buttonBit) == true){
     if(!Mouse.isPressed(mouseButton))
       Mouse.press(mouseButton);      
