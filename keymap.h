@@ -16,14 +16,14 @@ std::vector<int> thumb = {KEY_RETURN, 0x00, 0x00, 0x00,                   // Ent
 
 std::vector< std::vector<int> > 
                 banks = {{0x00, 'm', 'n', 'd', 't',           // LMB m n d t
-                          'r', 0x00, 'i', 'u', 'e',           // r WMB i u e
-                          0x00, 'l', 's', 'w', 'a',           // RMB l s w a
-                          KEY_LEFT_GUI, 'c', 'h', 'f', 'o'},  // Win c h f o
+                          'r', 0x00, 'i', 'e', 'c',           // r WMB i e c
+                          0x00, 'a', 's', 'l', 'v',           // RMB a s l v
+                          KEY_LEFT_GUI, 'h', 'o', 'f', 'x'},  // Win h o f x
                               
                          {'y', '1', '2', '3', 'j',           // y 1 2 3 j
-                          '4', 'p', '5', '6', 'v',           // 4 p 5 6 v
+                          '4', 'p', '5', '6', 'u',           // 4 p 5 6 u
                           'g', '7', '8', '9', 'k',           // g 7 8 9 k
-                          'b', '0', 'z', 'q', 'x'},          // b 0 z q x
+                          'b', '0', 'z', 'q', 'w'},          // b 0 z q w
                               
                          {0x00, KEY_HOME, KEY_PAGE_UP, KEY_END, KEY_PAGE_DOWN,           // Empty Home PageUp End PageDown
                           KEY_LEFT_ARROW, '-', KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW,           // Left - Up Right Down
