@@ -17,6 +17,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define ICON_HEIGHT   16
 #define ICON_WIDTH    16
 
+std::vector<int> displayButtonsSequence = {19, 13, 9, 4};
+
 static const unsigned char PROGMEM icon_bmp[] =
 { 0b00000000, 0b00000000,
   0b00000011, 0b11000000,

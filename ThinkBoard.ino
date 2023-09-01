@@ -4,6 +4,14 @@
 #include "vibro.h"
 #include "led.h"
 
+bool isDisplaySequence()
+{
+  for(int i=0; i < displayButtonsSequence.size(); i++)
+    if(!bitRead(keyboard.keysState, displayButtonsSequence[i]))
+      return false;
+      
+  return true;
+}
 
 void setup()
 {
@@ -32,12 +40,11 @@ void setup()
 //  testanimate(icon_bmp, ICON_WIDTH, ICON_HEIGHT); // Animate bitmaps
 }
 
-void loop()
-{
-    int bank = 0;
-    display.clearDisplay();
-    drawMenu();
+bool displayEnable = false;
+int bank = 0;
 
+void loop()
+{ 
     keyboardInit();
     readKeys();
     bank = getBank();
@@ -68,13 +75,30 @@ void loop()
           Keyboard.release(c);        
       }
     }
-    
-//    drawText(40, 0, "--Keys--");
-    drawText(40, 0, ("Bank - " + String(bank)));
-    drawText(0, 17, keys);
-    drawText(0, 42, symbols);
 
-    display.display();
+    if(isDisplaySequence()){
+      if(displayEnable)
+        displayEnable = false;
+      else
+        displayEnable = true;
+
+      delay(420);      
+    }
+
+    display.clearDisplay();
+    
+    if(displayEnable){
+      drawMenu();
+//      drawText(40, 0, "--Keys--");
+      drawText(40, 0, ("Bank - " + String(bank)));
+      drawText(0, 17, keys);
+      drawText(0, 42, symbols);
+
+    }
+    else
+      display.clearDisplay();   
+        
+    display.display(); 
 }
 
 // Running on core1
@@ -123,4 +147,5 @@ void loop1() {
   mouseButtonProccess(LMB_BIT, MOUSE_LEFT);
   mouseButtonProccess(WMB_BIT, MOUSE_MIDDLE);
   mouseButtonProccess(RMB_BIT, MOUSE_RIGHT);
+  
 }
