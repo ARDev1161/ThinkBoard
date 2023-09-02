@@ -46,13 +46,17 @@ int bank = 0;
 
 void loop()
 { 
+    String keys;
+    String symbols;
+    uint8_t c;
+    int prevBank = bank;
+    
     keyboardInit();
     readKeys();
     bank = getBank();
 
-    String keys;
-    String symbols;
-    uint8_t c;
+    if(prevBank != bank)
+      Keyboard.releaseAll();
     
     for (int i=31; i>=0; i--)
     {
@@ -142,7 +146,7 @@ void loop1() {
      if (sscanf(mouse.c_str(), "%d:%d", &x, &y) == 2)
      {
       if(Mouse.isPressed(MOUSE_MIDDLE))
-        Mouse.move(0, 0, x/8);
+        Mouse.move(0, 0, x/16);
       else
         Mouse.move( -y, -x);
      }
