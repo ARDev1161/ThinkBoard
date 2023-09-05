@@ -37,12 +37,16 @@ static const unsigned char PROGMEM icon_bmp[] =
   0b01000110, 0b01100010,
   0b00000000, 0b00000000 };
 
-
 void drawText(int xPos, int yPos, String text, int textSize = 1){
   display.setTextSize(textSize);
   display.setTextColor(SSD1306_WHITE);        // Draw white text
   display.setCursor(xPos, yPos);
   display.println(text);
+}
+
+void drawLogo(){
+  drawText(4, 20, "ThinkBoard", 2);
+  drawText(4, 42, "github.com/ARDev1161");
 }
 
 void drawMenu() {

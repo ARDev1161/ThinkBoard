@@ -3,6 +3,8 @@
 #include "display.h"
 #include "vibro.h"
 #include "led.h"
+#include <algorithm>
+#include <iterator>
 
 bool isDisplaySequence()
 {
@@ -12,7 +14,6 @@ bool isDisplaySequence()
       
   return true;
 }
-
 
 void setup()
 {
@@ -30,25 +31,23 @@ void setup()
     for(;;); // Don't proceed, loop forever
   }
 
-  // Clear the buffer
   display.clearDisplay();
+  drawLogo();
+  display.display();  
 
-  // Show the display buffer on the screen. You MUST call display() after
-  // drawing commands to make them visible on screen!
-  display.display();
-
+  delay(1000);
 
 //  testanimate(icon_bmp, ICON_WIDTH, ICON_HEIGHT); // Animate bitmaps
 }
 
-bool displayEnable = false;
+bool displayEnable = true;
 int bank = 0;
 
 void loop()
 { 
     String keys;
     String symbols;
-    uint8_t c;
+    char c;
     int prevBank = bank;
     
     keyboardInit();
@@ -69,7 +68,7 @@ void loop()
       {
         keys += "1";
         if(c != 0x00 ){
-          Keyboard.press(c);
+          Keyboard.press(c);          
           symbols += c;
         }
       }
@@ -96,9 +95,8 @@ void loop()
       drawMenu();
 //      drawText(40, 0, "--Keys--");
       drawText(40, 0, ("Bank - " + String(bank)));
-      drawText(0, 17, keys);
+      drawText(0, 15, keys);
       drawText(0, 42, symbols);
-
     }
     else
       display.clearDisplay();   
@@ -112,6 +110,13 @@ void setup1() {
   pinMode(TRACKPOINT_ENABLE, OUTPUT);
   digitalWrite(VIBRO, HIGH);
   digitalWrite(TRACKPOINT_ENABLE, HIGH);
+
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_G, LOW);
+  digitalWrite(LED_B, LOW);
   
   Serial1.setRX(TRACKPOINT_RX);
   Serial1.setTX(TRACKPOINT_TX);
@@ -119,7 +124,6 @@ void setup1() {
   
   delay(42);
   digitalWrite(VIBRO, LOW);
-  Serial.println("ThinkBoard");
   Mouse.begin();
 }
 
