@@ -1,6 +1,6 @@
 #include "keymap.h"
 #include "trackpoint.h"
-#include "display.h"
+#include "menu.h"
 #include "vibro.h"
 #include "led.h"
 #include <algorithm>
@@ -92,11 +92,13 @@ void loop()
     display.clearDisplay();
     
     if(displayEnable){
-      drawMenu();
-//      drawText(40, 0, "--Keys--");
-      drawText(40, 0, ("Bank - " + String(bank)));
-      drawText(0, 15, keys);
-      drawText(0, 42, symbols);
+      
+      drawMenuItems();
+      drawActiveItemBox();
+//      drawMenu();
+//      drawText(40, 0, ("Bank - " + String(bank)));
+//      drawText(0, 15, keys);
+//      drawText(0, 42, symbols);
     }
     else
       display.clearDisplay();   

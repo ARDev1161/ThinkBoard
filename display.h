@@ -12,30 +12,8 @@
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define NUMICONS     10 // Number of ghosts in the animation
-
-#define ICON_HEIGHT   16
-#define ICON_WIDTH    16
 
 std::vector<int> displayButtonsSequence = {19, 13, 9, 4};
-
-static const unsigned char PROGMEM icon_bmp[] =
-{ 0b00000000, 0b00000000,
-  0b00000011, 0b11000000,
-  0b00001111, 0b11110000,
-  0b00011111, 0b11111000,
-  0b00111111, 0b11111100,
-  0b00111111, 0b11111100,
-  0b00111001, 0b10011100,
-  0b01111001, 0b10011110,
-  0b01111111, 0b11111110,
-  0b01111111, 0b11111110,
-  0b01100110, 0b01100110,
-  0b01011001, 0b10011010,
-  0b01111111, 0b11111110,
-  0b01101110, 0b01110110,
-  0b01000110, 0b01100010,
-  0b00000000, 0b00000000 };
 
 void drawText(int xPos, int yPos, String text, int textSize = 1){
   display.setTextSize(textSize);
@@ -49,17 +27,7 @@ void drawLogo(){
   drawText(4, 42, "github.com/ARDev1161");
 }
 
-void drawMenu() {
-  drawText(6, 1, "NUM");
-  drawText(104, 1, "CAPS");
-  display.drawLine(28, 0, 28, 10, SSD1306_WHITE);
-  display.drawLine(100, 0, 100, 10, SSD1306_WHITE);
-  display.drawLine(0, 10, display.width(), 10, SSD1306_WHITE);
-  //display.drawRect(0, 10, display.width()-1, display.height()-10, SSD1306_WHITE);
-
-  // display.display();
-}
-
+#define NUMICONS     10 // Number of ghosts in the animation
 
 #define XPOS   0 // Indexes into the 'icons' array in function below
 #define YPOS   1
@@ -73,12 +41,6 @@ void testanimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
     icons[f][XPOS]   = random(1 - ICON_WIDTH, display.width());
     icons[f][YPOS]   = -ICON_HEIGHT;
     icons[f][DELTAY] = random(1, 6);
-    Serial.print(F("x: "));
-    Serial.print(icons[f][XPOS], DEC);
-    Serial.print(F(" y: "));
-    Serial.print(icons[f][YPOS], DEC);
-    Serial.print(F(" dy: "));
-    Serial.println(icons[f][DELTAY], DEC);
   }
 
   for(;;) { // Loop forever...
