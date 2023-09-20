@@ -2,42 +2,208 @@
 #include "display.h"
 #include <string>
 #include <vector>
+#include "keymap.h"
 
-std::vector< std::pair< String, std::vector<uint8_t> >> menu_items = { // array with menu items & icons
-  {"Display OFF", light_bmp},
-  {"Terminal", term_bmp},
-  {"Ghosts", ghost_bmp},
-  {"Settings", settings_bmp},
-  {"Diagnostic", diag_bmp},
-  {"Info", info_bmp}
+#define UUID "6d5a1418-2c19-4cb6-b8f3-f869c60d0239" // My UUID 4 for device, for your device get new from https://www.uuidgenerator.net/
+#define ITEMS_PER_SCREEN 4
+
+uint8_t topMenuItem; // which item is on top in the menu
+uint8_t activeMenuItem;
+bool inRoot = true;
+void (*curProc)();
+
+int itemHeight = ICON_HEIGHT;
+int textFieldWidth = SCREEN_WIDTH - (ICON_WIDTH + 2);
+String terminalData;
+bool terminalEnabled = false;
+
+#define NUMICONS     10 // Number of ghosts in the animation
+
+#define XPOS   0 // Indexes into the 'icons' array in function below
+#define YPOS   1
+#define DELTAY 2
+
+void testAnimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
+  int8_t f, icons[NUMICONS][3];
+
+  // Initialize icons positions
+  for(f=0; f< NUMICONS; f++) {
+    icons[f][XPOS]   = random(1 - ICON_WIDTH, display.width());
+    icons[f][YPOS]   = -ICON_HEIGHT;
+    icons[f][DELTAY] = random(1, 6);
+  }
+
+  while(!inRoot) { // Loop forever...
+    display.clearDisplay(); // Clear the display buffer
+
+    // Draw each icon:
+    for(f=0; f< NUMICONS; f++) {
+      display.drawBitmap(icons[f][XPOS], icons[f][YPOS], bitmap, w, h, SSD1306_WHITE);
+    }
+
+    display.display(); // Show the display buffer on the screen
+    delay(42);        // Pause for 1/10 second
+
+    // Then update coordinates of each icon...
+    for(f=0; f< NUMICONS; f++) {
+      icons[f][YPOS] += icons[f][DELTAY];
+      // If snowflake is off the bottom of the screen...
+      if (icons[f][YPOS] >= display.height()) {
+        // Reinitialize to a random position, just off the top
+        icons[f][XPOS]   = random(1 - ICON_WIDTH, display.width());
+        icons[f][YPOS]   = -ICON_HEIGHT;
+        icons[f][DELTAY] = random(1, 6);
+      }
+    }
+  }
+}
+void dispProc(){
+  displayEnable = false;
+  while(!inRoot);
+}
+
+void termProc(){
+  terminalEnabled = true;
+  while(!inRoot){
+    display.clearDisplay();
+    drawText(0, 0, terminalData);
+    display.display();
+  }
+  terminalEnabled = false;
+}
+
+void ghostsProc(){
+  testAnimate(ghost_bmp.data(), ICON_WIDTH, ICON_HEIGHT);
+}
+
+void settingsProc(){
+  
+}
+
+void diagProc(){
+  while(!inRoot){
+    display.clearDisplay();
+    
+    drawText(6, 1, "NUM");
+    drawText(104, 1, "CAPS");
+    display.drawLine(28, 0, 28, 10, SSD1306_WHITE);
+    display.drawLine(100, 0, 100, 10, SSD1306_WHITE);
+    display.drawLine(0, 10, display.width(), 10, SSD1306_WHITE);
+
+    drawText(40, 0, ("Bank - " + String(getBank()) ));
+    drawText(0, 15, keyboard.keys);
+    drawText(0, 42, keyboard.symbols);    
+
+    display.display();
+  }
+}
+
+void infoProc(){
+    display.clearDisplay();
+    drawLogo();
+    drawText(0, 47, UUID);
+    display.display();
+    delay(100);
+    while(!inRoot);
+}
+
+struct MenuItem{
+  String name;
+  std::vector<uint8_t> icon;
+  void (*proc)();
 };
 
-int topMenuItem = 0; // which item is on top in the menu
-int activeMenuItem = topMenuItem + 1;
+static std::vector< MenuItem > menu_items = { // array with menu items & icons
+  {"Display OFF", light_bmp, dispProc},
+  {"Terminal", term_bmp, termProc},
+  {"Ghosts", ghost_bmp, ghostsProc},
+  {"Settings", settings_bmp, settingsProc},
+  {"Diagnostic", diag_bmp, diagProc},
+  {"Info", info_bmp, infoProc}
+};
 
-int itemHeight = ICON_HEIGHT + 2;
-int textFieldWidth = SCREEN_WIDTH - (ICON_WIDTH + 2);
+void menuUp(){
+  if(activeMenuItem < 1)
+    topMenuItem--;
+  else    
+    activeMenuItem--;
+    
+  if(topMenuItem > menu_items.size() - 1)
+    topMenuItem = menu_items.size() - 1;
+}
+
+void menuDown(){
+  if(activeMenuItem >= ITEMS_PER_SCREEN - 1)
+    topMenuItem++;
+  else    
+    activeMenuItem++;
+    
+  if(topMenuItem > menu_items.size() - 1)
+    topMenuItem = 0;
+}
+
+void menuEnter(){
+  inRoot = false;
+  curProc = menu_items[topMenuItem + activeMenuItem].proc;
+}
+
+void menuBack(){  
+  
+}
+
+void menuRoot(){
+  inRoot = true;
+  displayEnable = true; 
+}
 
 void drawActiveItemBox()
 {
-    int dyPos = (activeMenuItem - topMenuItem) * itemHeight;
-    display.drawRect(0, dyPos,
+  int dyPos = activeMenuItem * itemHeight;
+  
+  if(itemHeight < 3)
+    return;
+    
+  display.drawRect(0, dyPos,
                      textFieldWidth, itemHeight,
                      SSD1306_WHITE);
+
+  // Rounding top left corner
+  display.drawPixel(0, dyPos, SSD1306_BLACK);
+  display.drawPixel(0, dyPos + 1, SSD1306_BLACK);  
+  display.drawPixel(1, dyPos, SSD1306_BLACK);
+  display.drawPixel(1, dyPos + 1, SSD1306_WHITE);
+
+  // Rounding bottom left corner
+  display.drawPixel(0, dyPos + itemHeight - 1, SSD1306_BLACK);
+  display.drawPixel(0, dyPos + itemHeight - 2, SSD1306_BLACK);
+  display.drawPixel(1, dyPos + itemHeight - 1, SSD1306_BLACK);
+  display.drawPixel(1, dyPos + itemHeight - 2, SSD1306_WHITE);
+
+  // Rounding top right corner
+  display.drawPixel(textFieldWidth - 1, dyPos, SSD1306_BLACK);
+  display.drawPixel(textFieldWidth - 1, dyPos + 1, SSD1306_BLACK);
+  display.drawPixel(textFieldWidth - 2, dyPos, SSD1306_BLACK);
+  display.drawPixel(textFieldWidth - 2, dyPos + 1, SSD1306_WHITE);
+  
+  // Rounding bottom right corner
+  display.drawPixel(textFieldWidth - 1, dyPos + itemHeight - 1, SSD1306_BLACK);
+  display.drawPixel(textFieldWidth - 1, dyPos + itemHeight - 2, SSD1306_BLACK);
+  display.drawPixel(textFieldWidth - 2, dyPos + itemHeight - 1, SSD1306_BLACK);
+  display.drawPixel(textFieldWidth - 2, dyPos + itemHeight - 2, SSD1306_WHITE);
 }
 
 void drawMenuItems()
 {
   int i = 0;
   int dyPos = 0;
-  int curItem = topMenuItem % menu_items.size();
+  int curItem = topMenuItem;
 
   while(dyPos < SCREEN_HEIGHT){
     dyPos = i * itemHeight;
 
-    drawText(3, dyPos + 6, menu_items[curItem].first);
+    drawText(3, dyPos + 4, menu_items[curItem].name);
     display.drawBitmap( (SCREEN_WIDTH - ICON_WIDTH), dyPos,
-                        menu_items[curItem].second.data(),
+                        menu_items[curItem].icon.data(),
                         ICON_WIDTH, ICON_HEIGHT,
                         SSD1306_WHITE);
 
@@ -50,117 +216,18 @@ void drawMenuItems()
   }
 }
 
-
-void drawMenu() {
-  drawText(6, 1, "NUM");
-  drawText(104, 1, "CAPS");
-  display.drawLine(28, 0, 28, 10, SSD1306_WHITE);
-  display.drawLine(100, 0, 100, 10, SSD1306_WHITE);
-  display.drawLine(0, 10, display.width(), 10, SSD1306_WHITE);
-  //display.drawRect(0, 10, display.width()-1, display.height()-10, SSD1306_WHITE);
-
-  // display.display();
+void drawMenu() {                           
+  display.clearDisplay();
+  if(displayEnable){
+    if(inRoot){
+      drawMenuItems();
+      drawActiveItemBox();  
+    }
+    else
+      curProc();
+  }
+  else
+    display.clearDisplay();
+    
+  display.display();
 }
-
-
-
-
-
-/*
-
-int item_sel_previous; // previous item - used in the menu screen to draw the item before the selected one
-int item_sel_next; // next item - used in the menu screen to draw next item after the selected one
-
-int current_screen = 0;   // 0 = menu, 1 = screenshot, 2 = qr
-
-
-void loop() {
-
-  if (current_screen == 0) { // MENU SCREEN
-
-      // up and down buttons only work for the menu screen
-      if ((digitalRead(BUTTON_UP_PIN) == LOW) && (button_up_clicked == 0)) { // up button clicked - jump to previous menu item
-        topMenuItem = topMenuItem - 1; // select previous item
-        button_up_clicked = 1; // set button to clicked to only perform the action once
-        if (topMenuItem < 0) { // if first item was selected, jump to last item
-          topMenuItem = NUM_ITEMS-1;
-        }
-      }
-      else if ((digitalRead(BUTTON_DOWN_PIN) == LOW) && (button_down_clicked == 0)) { // down button clicked - jump to next menu item
-        topMenuItem = topMenuItem + 1; // select next item
-        button_down_clicked = 1; // set button to clicked to only perform the action once
-        if (topMenuItem >= NUM_ITEMS) { // last item was selected, jump to first menu item
-          topMenuItem = 0;
-          }
-      }
-
-      if ((digitalRead(BUTTON_UP_PIN) == HIGH) && (button_up_clicked == 1)) { // unclick
-        button_up_clicked = 0;
-      }
-      if ((digitalRead(BUTTON_DOWN_PIN) == HIGH) && (button_down_clicked == 1)) { // unclick
-        button_down_clicked = 0;
-      }
-
-  }
-
-
-  if ((digitalRead(BUTTON_SELECT_PIN) == LOW) && (button_select_clicked == 0)) { // select button clicked, jump between screens
-     button_select_clicked = 1; // set button to clicked to only perform the action once
-     if (current_screen == 0) {current_screen = 1;} // menu items screen --> screenshots screen
-     else if (current_screen == 1) {current_screen = 2;} // screenshots screen --> qr codes screen
-     else {current_screen = 0;} // qr codes screen --> menu items screen
-  }
-  if ((digitalRead(BUTTON_SELECT_PIN) == HIGH) && (button_select_clicked == 1)) { // unclick
-    button_select_clicked = 0;
-  }
-
-  // set correct values for the previous and next items
-  item_sel_previous = topMenuItem - 1;
-  if (item_sel_previous < 0) {item_sel_previous = NUM_ITEMS - 1;} // previous item would be below first = make it the last
-  item_sel_next = topMenuItem + 1;
-  if (item_sel_next >= NUM_ITEMS) {item_sel_next = 0;} // next item would be after last = make it the first
-
-
-  u8g.firstPage(); // required for page drawing mode for u8g library
-  do {
-
-    if (current_screen == 0) { // MENU SCREEN
-
-      // selected item background
-      u8g.drawBitmapP(0, 22, 128/8, 21, bitmap_item_sel_outline);
-
-      // draw previous item as icon + label
-      u8g.setFont(u8g_font_7x14);
-      u8g.drawStr(25, 15, menu_items[item_sel_previous]);
-      u8g.drawBitmapP( 4, 2, 16/8, 16, bitmap_icons[item_sel_previous]);
-
-      // draw selected item as icon + label in bold font
-      u8g.setFont(u8g_font_7x14B);
-      u8g.drawStr(25, 15+20+2, menu_items[topMenuItem]);
-      u8g.drawBitmapP( 4, 24, 16/8, 16, bitmap_icons[topMenuItem]);
-
-      // draw next item as icon + label
-      u8g.setFont(u8g_font_7x14);
-      u8g.drawStr(25, 15+20+20+2+2, menu_items[item_sel_next]);
-      u8g.drawBitmapP( 4, 46, 16/8, 16, bitmap_icons[item_sel_next]);
-
-      // draw scrollbar background
-      u8g.drawBitmapP(128-8, 0, 8/8, 64, bitmap_scrollbar_background);
-
-      // draw scrollbar handle
-      u8g.drawBox(125, 64/NUM_ITEMS * topMenuItem, 3, 64/NUM_ITEMS);
-
-      // draw upir logo
-      u8g.drawBitmapP(128-16-4, 64-4, 16/8, 4, upir_logo);
-
-    }
-    else if (current_screen == 1) { // SCREENSHOTS SCREEN
-        u8g.drawBitmapP( 0, 0, 128/8, 64, bitmap_screenshots[topMenuItem]); // draw screenshot
-    }
-    else if (current_screen == 2) { // QR SCREEN
-        u8g.drawBitmapP( 0, 0, 128/8, 64, bitmap_qr_codes[topMenuItem]); // draw qr code screenshot
-    }
-
-  } while ( u8g.nextPage() ); // required for page drawing mode with u8g library
-
-}*/

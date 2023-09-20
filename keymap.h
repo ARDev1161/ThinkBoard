@@ -7,6 +7,11 @@
 #define HC165_PL 8 // Parallel load
 #define HC165_CP 9 // Clock in
 
+#define MENU_UP_KEY 21
+#define MENU_DOWN_KEY 23
+#define MENU_ENTER_KEY 24
+#define MENU_BACK_KEY 22
+
 std::vector<int> modeButtons = {30, 24};
 
 // center, left, up, right, downmode
@@ -46,6 +51,8 @@ const int pulseWidth = 10;      // pulse width in microseconds
 struct Keyboard{
     
     uint32_t keysState = 0;
+    String keys; // for binary
+    String symbols;
 }keyboard;
 
 void keyboardInit()
