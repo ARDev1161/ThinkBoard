@@ -1,5 +1,6 @@
-#include <vector>
+#pragma once
 
+#include <vector>
 #include <Keyboard.h>
 
 #define HC165_DS 6 // Data
@@ -48,15 +49,18 @@ std::vector< std::vector<int> >
 
 const int pulseWidth = 10;      // pulse width in microseconds
 
-struct Keyboard{
-    
+struct Keys{    
     uint32_t keysState = 0;
-    String keys; // for binary
-    String symbols;
+    String keys; // for binary as text representation
+    String symbols; // for pressed symbols representation
+    uint8_t bank = 0;
 }keyboard;
 
 void keyboardInit()
 {
+  Keyboard.begin();
+  Keyboard.releaseAll();
+  
   pinMode( HC165_CP, OUTPUT); // clock signal, idle LOW
   pinMode( HC165_PL, OUTPUT); // latch (copy input into registers), idle HIGH
   pinMode( HC165_CE, OUTPUT); // Not clock enable, idle HIGH
@@ -82,25 +86,10 @@ byte readByte()
       bitSet( ret, i);
       
     digitalWrite( HC165_CP, HIGH);
-    delayMicroseconds( pulseWidth);
+    delayMicroseconds(pulseWidth);
     digitalWrite( HC165_CP, LOW);
   }
   return( ret);
-}
-
-void readKeys()
-{
-  // Give a pulse to the parallel load latch of all 74HC165
-  digitalWrite( HC165_PL, LOW);
-  delayMicroseconds( pulseWidth);
-  digitalWrite( HC165_PL, HIGH);
-
-  uint32_t keysState = 0;
-  for( int i=24; i>=0; i-=8)
-    keysState |= ((uint32_t) readByte()) << i;
-
-  keyboard.keysState = keysState;
-  delay(25); // slow down the sketch to avoid switch bounce
 }
 
 int getBank()
@@ -112,4 +101,50 @@ int getBank()
     bank |= bitRead(keyboard.keysState, modeButtons[i]) << i;
   
   return bank;
+}
+
+void readKeys()
+{
+  // Give a pulse to the parallel load latch of all 74HC165
+  digitalWrite( HC165_PL, LOW);
+  delayMicroseconds(pulseWidth);
+  digitalWrite( HC165_PL, HIGH);
+
+  uint32_t keysState = 0;
+  for( int i=24; i>=0; i-=8)
+    keysState |= ((uint32_t) readByte()) << i;
+
+  keyboard.keysState = keysState;
+  keyboard.bank = getBank();
+  delay(3); // slow down the sketch to avoid switch bounce
+}
+
+void keyboardProccessing(){
+  char c;
+
+  keyboard.keys = "";
+  keyboard.symbols = "";
+
+  for (int i=31; i>=0; i--)
+  {
+    if(i > 19)
+      c = thumb[31 - i]; // 31 - 20 bits use for thumb
+    else
+      c = banks[keyboard.bank][19 - i]; // 0 - 19 bits use for banks
+
+    if ( bitRead(keyboard.keysState, i) == true )
+    {
+      keyboard.keys += "1";
+      if(c != 0x00 ){
+        Keyboard.press(c);
+        keyboard.symbols += c;
+      }
+    }
+    else
+    {
+      keyboard.keys += "0";
+      if(c != 0x00)
+        Keyboard.release(c);
+    }
+  }
 }

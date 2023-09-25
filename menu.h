@@ -17,6 +17,17 @@ int textFieldWidth = SCREEN_WIDTH - (ICON_WIDTH + 2);
 String terminalData;
 bool terminalEnabled = false;
 
+std::vector<int> displayButtonsSequence = {19, 13, 9};
+
+bool isDisplaySequence()
+{
+  for(int i=0; i < displayButtonsSequence.size(); i++)
+    if(!bitRead(keyboard.keysState, displayButtonsSequence[i]))
+      return false;
+      
+  return true;
+}
+
 #define NUMICONS     10 // Number of ghosts in the animation
 
 #define XPOS   0 // Indexes into the 'icons' array in function below
@@ -216,18 +227,18 @@ void drawMenuItems()
   }
 }
 
-void drawMenu() {                           
-  display.clearDisplay();
-  if(displayEnable){
-    if(inRoot){
-      drawMenuItems();
-      drawActiveItemBox();  
+void drawMenu() {            
+    display.clearDisplay();
+    if(displayEnable){
+      if(inRoot){
+        drawMenuItems();
+        drawActiveItemBox();  
+      }
+      else
+        curProc();
     }
     else
-      curProc();
-  }
-  else
-    display.clearDisplay();
+      display.clearDisplay();
     
-  display.display();
+    display.display();
 }

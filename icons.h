@@ -1,4 +1,3 @@
-
 #define ICON_HEIGHT   16
 #define ICON_WIDTH    16
 
