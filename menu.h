@@ -1,8 +1,11 @@
+#ifndef __MENU_H__
+#define __MENU_H__
+
 #include "icons.h"
 #include "display.h"
 #include <string>
 #include <vector>
-#include "keymap.h"
+#include "keys.h"
 
 #define UUID "6d5a1418-2c19-4cb6-b8f3-f869c60d0239" // My UUID 4 for device, for your device get new from https://www.uuidgenerator.net/
 #define ITEMS_PER_SCREEN 4
@@ -90,10 +93,17 @@ void diagProc(){
     display.drawLine(100, 0, 100, 10, SSD1306_WHITE);
     display.drawLine(0, 10, display.width(), 10, SSD1306_WHITE);
 
-    drawText(40, 0, ("Bank - " + String(getBank()) ));
+    keyboard.calcBank();
+    drawText(40, 0, ("Bank - " + String(keyboard.bank()) ));
     drawText(0, 15, keyboard.keys);
     drawText(0, 42, keyboard.symbols);    
 
+    drawText(0, 50, "Mouse X=");   
+    drawText(70, 50, "Y=");  
+    TrackPoint::DataReport d = trackpoint.getStreamReport();
+    drawText(50, 50, String(d.x));   
+    drawText(90, 50, String(d.y));   
+    
     display.display();
   }
 }
@@ -231,3 +241,5 @@ void drawMenu() {
     
   display.display();
 }
+
+#endif //__MENU_H__

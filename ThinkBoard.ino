@@ -2,34 +2,18 @@
 #include "menu.h"
 #include "vibro.h"
 #include "led.h"
-#include <algorithm>
-#include <iterator>
 
 bool displaySequence = false;
-int bank = 0;
 
 bool isDisplaySequence()
 {
   for(int i=0; i < displayButtonsSequence.size(); i++)
-    if(!bitRead(keyboard.keysState, displayButtonsSequence[i]))
+    if(!keyboard.isPressed(displayButtonsSequence[i]))
       return false;
       
   return true;
 }
 
-void mouseButtonProccess(uint8_t buttonBit, uint8_t mouseButton)
-{
-  if(bank != 0)
-    return;
-  
-  if(bitRead(keyboard.keysState,buttonBit) == true){
-    if(!Mouse.isPressed(mouseButton))
-      Mouse.press(mouseButton);      
-  }
-  else
-    if(Mouse.isPressed(mouseButton))
-      Mouse.release(mouseButton);  
-}
 
 void setup()
 {
@@ -40,31 +24,21 @@ void setup()
   Wire.setSDA(I2C_SDA);
   Wire.setSCL(I2C_SCL);
   Wire.begin();
-
-  Serial1.setRX(TRACKPOINT_RX);
-  Serial1.setTX(TRACKPOINT_TX);
-  Serial1.begin(TRACKPOINT_BAUDRATE);
-  
-  pinMode(TRACKPOINT_ENABLE, OUTPUT);
-  digitalWrite(TRACKPOINT_ENABLE, HIGH);
-  
-  Mouse.begin();
 }
 
 
 void loop()
 { 
     char c;
-    int prevBank = bank;
+    int prevBank = keyboard.bank();
 
-    keyboardInit();
-    readKeys();
-    bank = getBank();
+    keyboard.readKeys();
+    keyboard.calcBank();
 
     if(terminalEnabled)
       terminalData = Serial.readStringUntil('\n');
     
-    if(prevBank != bank)
+    if(prevBank != keyboard.bank())
       Keyboard.releaseAll();
 
     displaySequence = isDisplaySequence();
@@ -77,9 +51,9 @@ void loop()
         if(i > 19)
           c = thumb[31 - i]; // 31 - 20 bits use for thumb
         else
-          c = banks[bank][19 - i]; // 0 - 19 bits use for banks
+          c = banks[keyboard.bank()][19 - i]; // 0 - 19 bits use for banks
       
-        if ( bitRead(keyboard.keysState,i) == true ) 
+        if ( keyboard.isPressed(i) == true ) 
         {
           keyboard.keys += "1";
           if(c != 0x00 ){
@@ -97,19 +71,19 @@ void loop()
       
     }
     else {    
-      if(bitRead(keyboard.keysState,MENU_UP_KEY) == true){
+      if(keyboard.isPressed(MENU_UP_KEY)){
         menuUp();
         delay(100);
       }
-      else if(bitRead(keyboard.keysState,MENU_DOWN_KEY) == true){
+      else if(keyboard.isPressed(MENU_DOWN_KEY)){
         menuDown();
         delay(100);
       }
-      else if(bitRead(keyboard.keysState,MENU_ENTER_KEY) == true){
+      else if(keyboard.isPressed(MENU_ENTER_KEY)){
         menuEnter();
         delay(100);
       }
-      else if(bitRead(keyboard.keysState,MENU_BACK_KEY) == true){
+     else if(keyboard.isPressed(MENU_BACK_KEY)){
         menuBack();
         delay(100);
       }
@@ -119,29 +93,18 @@ void loop()
       }
     }
     
-  String mouse;
-  int x,y;
-  if(Serial1.available())
-  {
-     mouse = Serial1.readStringUntil('\n');
-     if (sscanf(mouse.c_str(), "%d:%d", &x, &y) == 2)
-     {
-      if(Mouse.isPressed(MOUSE_MIDDLE))
-        Mouse.move(0, 0, x/16);
-      else
-        Mouse.move( -y, -x);
-     }
-  }
+}
 
-  mouseButtonProccess(LMB_BIT, MOUSE_LEFT);
-  mouseButtonProccess(WMB_BIT, MOUSE_MIDDLE);
-  mouseButtonProccess(RMB_BIT, MOUSE_RIGHT);
+void clockInterrupt(void) {
+  trackpoint.getDataBit();
 }
 
 // Running on core1
 void setup1() {  
   pinMode(VIBRO, OUTPUT);
-  digitalWrite(VIBRO, HIGH);
+  digitalWrite(VIBRO, HIGH);    
+  delay(42);
+  digitalWrite(VIBRO, LOW);
   
   pinMode(LED_R, OUTPUT);
   pinMode(LED_G, OUTPUT);
@@ -159,13 +122,26 @@ void setup1() {
     for(;;); // Don't proceed, loop forever
   }
 
+  Mouse.begin();
+  
+  unsigned long startTime;
+  unsigned long endTime;
   display.clearDisplay();
   drawLogo();
-  display.display();  
-
-  delay(1000);
+  display.display();
+  startTime = millis();
+  
+  trackpoint.reset();
+  trackpoint.setSensitivityFactor(0xC0);
+  trackpoint.setStreamMode();
+  
+  attachInterrupt(TRACKPOINT_CLK, clockInterrupt, FALLING);
+  
+  endTime = millis();
+  delay( ((endTime - startTime) < 420) ? (endTime - startTime) : 0 );
 }
 
-void loop1() { 
+void loop1() {
+  mouseProccessing();  
   drawMenu();  
 }

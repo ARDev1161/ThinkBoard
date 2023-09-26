@@ -1,8 +1,10 @@
+#ifndef __ICONS_H__
+#define __ICONS_H__
 
 #define ICON_HEIGHT   16
 #define ICON_WIDTH    16
 
-std::vector<uint8_t> diag_bmp =
+std::vector<uint8_t> PROGMEM diag_bmp =
 { 0b00000000, 0b00000001,
   0b00000000, 0b00000011,
   0b00000000, 0b00000011,
@@ -21,7 +23,7 @@ std::vector<uint8_t> diag_bmp =
   0b00000001, 0b10000000 };
 
 
-std::vector<uint8_t> light_bmp =
+std::vector<uint8_t> PROGMEM light_bmp =
 { 0b00000001, 0b10000000,
   0b00000001, 0b10000000,
   0b01000001, 0b10000010,
@@ -43,7 +45,7 @@ std::vector<uint8_t> light_bmp =
   0b00000001, 0b10000000 };
 
 
-std::vector<uint8_t> info_bmp =
+std::vector<uint8_t> PROGMEM info_bmp =
 { 0b00000001, 0b10000000,
   0b00000011, 0b11000000,
   0b00000011, 0b11000000,
@@ -62,7 +64,7 @@ std::vector<uint8_t> info_bmp =
   0b00000111, 0b11100000 };
 
 
-std::vector<uint8_t> term_bmp =
+std::vector<uint8_t> PROGMEM term_bmp =
 { 0b00111111, 0b11111100,
   0b01000000, 0b00000010,
   0b10000000, 0b00000001,
@@ -81,7 +83,7 @@ std::vector<uint8_t> term_bmp =
   0b00111111, 0b11111100, };
 
 
-std::vector<uint8_t> settings_bmp =
+std::vector<uint8_t> PROGMEM settings_bmp =
 { 0b00000001, 0b10000000,
   0b00010011, 0b11001000,
   0b00111011, 0b11011100,
@@ -103,7 +105,7 @@ std::vector<uint8_t> settings_bmp =
   0b00000001, 0b10000000 };
 
 
-std::vector<uint8_t> ghost_bmp =
+std::vector<uint8_t> PROGMEM ghost_bmp =
 { 0b00000000, 0b00000000,
   0b00000011, 0b11000000,
   0b00001111, 0b11110000,
@@ -120,3 +122,5 @@ std::vector<uint8_t> ghost_bmp =
   0b01101110, 0b01110110,
   0b01000110, 0b01100010,
   0b00000000, 0b00000000 };
+  
+#endif //__ICONS_H__

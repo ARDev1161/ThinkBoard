@@ -1,3 +1,6 @@
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -27,3 +30,5 @@ void drawLogo(){
   drawText(4, 14, "ThinkBoard", 2);
   drawText(4, 37, "github.com/ARDev1161");
 }
+  
+#endif //__DISPLAY_H__
