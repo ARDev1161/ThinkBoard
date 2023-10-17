@@ -30,17 +30,17 @@ void testAnimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
   int8_t f, icons[NUMICONS][3];
 
   // Initialize icons positions
-  for(f=0; f< NUMICONS; f++) {
+  for (f = 0; f < NUMICONS; f++) {
     icons[f][XPOS]   = random(1 - ICON_WIDTH, display.width());
     icons[f][YPOS]   = -ICON_HEIGHT;
     icons[f][DELTAY] = random(1, 6);
   }
 
-  while(!inRoot) { // Loop forever...
+  while (!inRoot) { // Loop forever...
     display.clearDisplay(); // Clear the display buffer
 
     // Draw each icon:
-    for(f=0; f< NUMICONS; f++) {
+    for (f = 0; f < NUMICONS; f++) {
       display.drawBitmap(icons[f][XPOS], icons[f][YPOS], bitmap, w, h, SSD1306_WHITE);
     }
 
@@ -48,7 +48,7 @@ void testAnimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
     delay(42);        // Pause for 1/10 second
 
     // Then update coordinates of each icon...
-    for(f=0; f< NUMICONS; f++) {
+    for (f = 0; f < NUMICONS; f++) {
       icons[f][YPOS] += icons[f][DELTAY];
       // If snowflake is off the bottom of the screen...
       if (icons[f][YPOS] >= display.height()) {
@@ -60,14 +60,16 @@ void testAnimate(const uint8_t *bitmap, uint8_t w, uint8_t h) {
     }
   }
 }
-void dispProc(){
+void dispProc() {
   displayEnable = false;
-  while(!inRoot);
+  display.clearDisplay();
+  display.display();
+  while (!inRoot);
 }
 
-void termProc(){
+void termProc() {
   terminalEnabled = true;
-  while(!inRoot){
+  while (!inRoot) {
     display.clearDisplay();
     drawText(0, 0, terminalData);
     display.display();
@@ -75,18 +77,18 @@ void termProc(){
   terminalEnabled = false;
 }
 
-void ghostsProc(){
+void ghostsProc() {
   testAnimate(ghost_bmp.data(), ICON_WIDTH, ICON_HEIGHT);
 }
 
-void settingsProc(){
-  
+void settingsProc() {
+
 }
 
-void diagProc(){
-  while(!inRoot){
+void diagProc() {
+  while (!inRoot) {
     display.clearDisplay();
-    
+
     drawText(6, 1, "NUM");
     drawText(104, 1, "CAPS");
     display.drawLine(28, 0, 28, 10, SSD1306_WHITE);
@@ -96,28 +98,28 @@ void diagProc(){
     keyboard.calcBank();
     drawText(40, 0, ("Bank - " + String(keyboard.bank()) ));
     drawText(0, 15, keyboard.keys);
-    drawText(0, 42, keyboard.symbols);    
+    drawText(0, 42, keyboard.symbols);
 
-    drawText(0, 50, "Mouse X=");   
-    drawText(70, 50, "Y=");  
+    drawText(0, 50, "Mouse X=");
+    drawText(70, 50, "Y=");
     TrackPoint::DataReport d = trackpoint.getStreamReport();
-    drawText(50, 50, String(d.x));   
-    drawText(90, 50, String(d.y));   
-    
+    drawText(50, 50, String(d.x));
+    drawText(90, 50, String(d.y));
+
     display.display();
   }
 }
 
-void infoProc(){
-    display.clearDisplay();
-    drawLogo();
-    drawText(0, 47, UUID);
-    display.display();
-    delay(100);
-    while(!inRoot);
+void infoProc() {
+  display.clearDisplay();
+  drawLogo();
+  drawText(0, 49, UUID);
+  display.display();
+  delay(100);
+  while (!inRoot);
 }
 
-struct MenuItem{
+struct MenuItem {
   String name;
   std::vector<uint8_t> icon;
   void (*proc)();
@@ -132,54 +134,54 @@ static std::vector< MenuItem > menu_items = { // array with menu items & icons
   {"Info", info_bmp, infoProc}
 };
 
-void menuUp(){
-  if(activeMenuItem < 1)
+void menuUp() {
+  if (activeMenuItem < 1)
     topMenuItem--;
-  else    
+  else
     activeMenuItem--;
-    
-  if(topMenuItem > menu_items.size() - 1)
+
+  if (topMenuItem > menu_items.size() - 1)
     topMenuItem = menu_items.size() - 1;
 }
 
-void menuDown(){
-  if(activeMenuItem >= ITEMS_PER_SCREEN - 1)
+void menuDown() {
+  if (activeMenuItem >= ITEMS_PER_SCREEN - 1)
     topMenuItem++;
-  else    
+  else
     activeMenuItem++;
-    
-  if(topMenuItem > menu_items.size() - 1)
+
+  if (topMenuItem > menu_items.size() - 1)
     topMenuItem = 0;
 }
 
-void menuEnter(){
+void menuEnter() {
   inRoot = false;
   curProc = menu_items[topMenuItem + activeMenuItem].proc;
 }
 
-void menuBack(){  
-  
+void menuBack() {
+
 }
 
-void menuRoot(){
+void menuRoot() {
   inRoot = true;
-  displayEnable = true; 
+  displayEnable = true;
 }
 
 void drawActiveItemBox()
 {
   int dyPos = activeMenuItem * itemHeight;
-  
-  if(itemHeight < 3)
+
+  if (itemHeight < 3)
     return;
-    
+
   display.drawRect(0, dyPos,
-                     textFieldWidth, itemHeight,
-                     SSD1306_WHITE);
+                   textFieldWidth, itemHeight,
+                   SSD1306_WHITE);
 
   // Rounding top left corner
   display.drawPixel(0, dyPos, SSD1306_BLACK);
-  display.drawPixel(0, dyPos + 1, SSD1306_BLACK);  
+  display.drawPixel(0, dyPos + 1, SSD1306_BLACK);
   display.drawPixel(1, dyPos, SSD1306_BLACK);
   display.drawPixel(1, dyPos + 1, SSD1306_WHITE);
 
@@ -194,7 +196,7 @@ void drawActiveItemBox()
   display.drawPixel(textFieldWidth - 1, dyPos + 1, SSD1306_BLACK);
   display.drawPixel(textFieldWidth - 2, dyPos, SSD1306_BLACK);
   display.drawPixel(textFieldWidth - 2, dyPos + 1, SSD1306_WHITE);
-  
+
   // Rounding bottom right corner
   display.drawPixel(textFieldWidth - 1, dyPos + itemHeight - 1, SSD1306_BLACK);
   display.drawPixel(textFieldWidth - 1, dyPos + itemHeight - 2, SSD1306_BLACK);
@@ -208,7 +210,7 @@ void drawMenuItems()
   int dyPos = 0;
   int curItem = topMenuItem;
 
-  while(dyPos < SCREEN_HEIGHT){
+  while (dyPos < SCREEN_HEIGHT) {
     dyPos = i * itemHeight;
 
     drawText(3, dyPos + 4, menu_items[curItem].name);
@@ -217,7 +219,7 @@ void drawMenuItems()
                         ICON_WIDTH, ICON_HEIGHT,
                         SSD1306_WHITE);
 
-    if(curItem == menu_items.size() - 1)
+    if (curItem == menu_items.size() - 1)
       curItem = 0;
     else
       curItem++;
@@ -226,19 +228,19 @@ void drawMenuItems()
   }
 }
 
-void drawMenu() {                           
+void drawMenu() {
   display.clearDisplay();
-  if(displayEnable){
-    if(inRoot){
+  if (displayEnable) {
+    if (inRoot) {
       drawMenuItems();
-      drawActiveItemBox();  
+      drawActiveItemBox();
     }
     else
       curProc();
   }
   else
     display.clearDisplay();
-    
+
   display.display();
 }
 

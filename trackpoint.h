@@ -334,7 +334,7 @@ inline void mouseButtonProccess(uint8_t buttonBit, uint8_t mouseButton)
 
   String mouse;
   int x,y;
-  int trackpointDriftThreshold = 16;
+  int trackpointDriftThreshold = 2;
   int decreaseCoeff = 2;
   TrackPoint::DataReport dataTrackpoint;
   

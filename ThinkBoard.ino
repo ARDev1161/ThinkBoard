@@ -132,7 +132,7 @@ void setup1() {
   startTime = millis();
   
   trackpoint.reset();
-  trackpoint.setSensitivityFactor(0xC0);
+  trackpoint.setSensitivityFactor(0xFF);
   trackpoint.setStreamMode();
   
   attachInterrupt(TRACKPOINT_CLK, clockInterrupt, FALLING);
